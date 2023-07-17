@@ -2,10 +2,9 @@ package com.example.TestDemo.Controller;
 import com.example.TestDemo.Model.User;
 import com.example.TestDemo.Service.UserService;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,14 +23,22 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        Optional<User> user = userService.getUserById(id);
-        return user.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        return userService.getUserById(id)
+                .map(user -> ResponseEntity.ok().body(user))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody User user) {
+        return Optional
+                .of(userService.save(user))
+                .map(user1 -> ResponseEntity.created(URI.create("/users/" + user1.getId()))
+                        .body(user1))
+                .orElseGet(()-> ResponseEntity.badRequest().build());
+        /*
         User createdUser = userService.createUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+         */
     }
 
     @PutMapping("/{id}")
