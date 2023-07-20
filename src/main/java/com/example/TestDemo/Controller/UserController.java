@@ -12,7 +12,6 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-
     private final UserService userService;
 
     @GetMapping
@@ -35,32 +34,29 @@ public class UserController {
                 .map(user1 -> ResponseEntity.created(URI.create("/users/" + user1.getId()))
                         .body(user1))
                 .orElseGet(()-> ResponseEntity.badRequest().build());
-        /*
-        User createdUser = userService.createUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
-         */
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
-        Optional<User> existingUser = userService.getUserById(id);
-        if (existingUser.isPresent()) {
-            user.setId(id);
-            User updatedUser = userService.updateUser(user);
-            return ResponseEntity.ok(updatedUser);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<User> updateUser(@PathVariable Long id,
+                                           @RequestBody User user) {
+        return Optional
+                .ofNullable(userService.getUserById(id))
+                .map(u -> {
+                    user.setId(id);
+                    User updatedUser = userService.updateUser(user);
+                    return ResponseEntity.ok(updatedUser);
+                })
+                .orElseGet(()-> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        Optional<User> existingUser = userService.getUserById(id);
-        if (existingUser.isPresent()) {
-            userService.deleteUser(id);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        return Optional
+                .ofNullable(userService.getUserById(id))
+                .map(user -> {
+                    userService.deleteUser(id);
+                    return ResponseEntity.noContent().build();
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

@@ -10,7 +10,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -50,7 +49,6 @@ class UserServiceTest {
         assertNotNull(usuarioResponse);
         assertNotNull("Jose", usuarioResponse.getName());
     }
-
 
     @Test
     void whenSaveUser() {
@@ -98,6 +96,6 @@ class UserServiceTest {
         Mockito.verify(userRepository, Mockito.times(1))
                 .save(Mockito.any(User.class));
         assertNotNull(usuarioResponse);
-        assertNotNull("Jose", usuarioResponse.getName());
+        assertEquals("Jose", usuarioResponse.getName());
     }
 }
